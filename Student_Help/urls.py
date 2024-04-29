@@ -17,10 +17,23 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from myapp.views import *
+from Student_Help import settings
+from django.conf.urls.static import static
+
+from myapp.views import all_posts, create_account, create_account_view, create_post, creation_posts, creation_transport, dashbord_view, login_user, login_view
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('create_account/',create_account,name = "create_account" ),
-    path('create_account_view/',create_account_view,name = "create_account_view")
+    path('create_account_view/',create_account_view,name = "create_account_view"),
+    path('loginn/',login_user,name = "loginn"),
+    path('login_view/',login_view),
+    path('create_post/<type_post>/',create_post),
+    path('create_recommendation/',creation_posts,name="create_post_rec"),
+    path('creation_transport/',creation_transport,name="creation_transport"),
+    path('all_posts/', all_posts, name='all_posts'),
 ]
+if settings.DEBUG:
+    urlpatterns+= static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

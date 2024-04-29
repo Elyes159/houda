@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tous les Postes</title>
+  <style>
+    /* Style de la barre de navigation */
+    .navbar {
+      overflow: hidden;
+      background-color: #333;
+    }
+
+    /* Liens de la barre de navigation */
+    .navbar a {
+      float: left;
+      display: block;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 14px 20px;
+      text-decoration: none;
+    }
+
+    /* Changement de couleur au survol */
+    .navbar a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    /* Style actif (pour le lien actuellement sélectionné) */
+    .active {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    /* Table styles */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+    th {
+      text-align: left;
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <a class="active" href="#home">Accueil</a>
+  <a href="#evenementclub">Évènement de Club</a>
+  <a href="#evenementsociale">Évènement Social</a>
+  <a href="#stage">Stage</a>
+  <a href="#logement">Logement</a>
+  <a href="{% url 'creation_transport' %}">Transport</a>
+  <a href="{% url 'create_post_rec' %}">Recommendation</a>
+</div>
+
+<div style="padding: 20px;">
+  <h1>Tous les Postes</h1>
+
+  {% if post_data %}
+    <h2>Offres</h2>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Image</th>
+        <th>Date</th>
+        <th>Titre/Société</th>  <th>Détails</th>
+      </tr>
+      {% for post in post_data.offres %}
+      <tr>
+        <td>{{ post.id }}</td>
+        <td><img src="{{ post.image }}" alt="Image du poste" width="100"></td>  <td>{{ post.date }}</td>
+        {% if post.intitule %}  <td>{{ post.intitule }}</td>  {% elif post.societe %}  <td>{{ post.societe }}</td>  {% else %}
+          <td>-</td>  {% endif %}
+        <td><a href="#">Voir plus</a></td>  </tr>
+      {% endfor %}
+    </table>
+
+    <h2>Demandes</h2>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Image</th>
+        <th>Date</th>
+        <th>Titre/Société</th>  <th>Détails</th>
+      </tr>
+      {% for post in post_data.demandes %}
+      <tr>
+        <td>{{ post.id }}</td>
+        <td><img src="{{ post.image }}" alt="Image du poste" width="100"></td>  <td>{{ post.date }}</td>
+        {% if post.intitule %}  <td>{{ post.intitule }}</td>  {% elif post.societe %}  <td>{{ post.societe }}</td>  
+        {% else %}
+          <td>-</td>  {% endif %}
+        <td><a href="#">Voir plus</a></td>  </tr>
+      {% endfor %}
+    </table>
+
+    <h2>Évènements Sociaux</h2>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Image</th>
+        <th>Date</th>
+        <th>Titre</th>
+        <th>Prix</th>
+        <th>Détails</th>
+      </tr>
+      {% for post in post_data.offres %}  <tr>
+        <td>{{ post.id }}</td>
+        <td><img src="{{ post.image }}" alt="Image du poste" width="100"></td>  <td>{{ post.date }}</td>
+        {% if post.intitule %}  <td>{{ post.intitule }}</td>  {% else %} <td>-</td> {% endif %}
+        {% if post.prix %}  <td>{{ post.prix }}</td>  {% else %} <td>-</td> {% endif %}
+        <td><a href="#">Voir plus</a></td>  </tr>
+      {% endfor %}
+    </table>
+
+    <h2>Stages</h2>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Image</th>
+        <th>Date</th>
+        <th>Type</th>
+        <th>Société</th>
+        <th>Durée</th>
+        <th>Sujet</th>
+        <th>Spécialité</th>
+        <th>Détails</th>
+      </tr>
+      {% for post in post_data.offres %}  <tr>
+        <td>{{ post.id }}</td>
+        <td><img src="{{ post.image }}" alt="Image du poste" width="100"></td>  <td>{{ post.date }}</td>
+        <td>{{ post.typeStg }}</td>  {% if post.societe %}  <td>{{ post.societe }}</td>  {% else %} <td>-</td> {% endif %}
+        <td>{{ post.duree }}</td>
+        <td>{{ post.sujet }}</td>
+        <td>{{ post.spécialité }}</td>
+        <td><a href="#">Voir plus</a></td>  </tr>
+      {% endfor %}
+    </table>
+
+    <h2>Logements</h2>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Image</th>
+        <th>Date</th>
+        <th>Localisation</th>
+        <th>Détails</th>
+      </tr>
+      {% for post in post_data.offres %}  <tr>
+        <td>{{ post.id }}</td>
+        <td><img src="{{ post.image }}" alt="Image du poste" width="100"></td>  <td>{{ post.date }}</td>
+        <td>{{ post.localisation }}</td>
+        <td><a href="#">Voir plus</a></td>  </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+</div>
+
+</body>
+</html>

@@ -12,7 +12,7 @@ def token_response(user):
     response_data = {
         'message': 'login successful',
         'token': token,
-        'username' : user.username,
+        'username' : user.email,
         
     }
     print(token)
