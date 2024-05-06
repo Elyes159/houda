@@ -223,8 +223,6 @@
   <a href="{% url 'creation_logement' %}">Logement</a>
   <a href="{% url 'creation_transport' %}">Transport</a>
   <a href="{% url 'create_post_rec' %}">Recommendation</a>
-
-  
 </div>
 
 
@@ -236,13 +234,10 @@
 
   <div class="post-container">
     {% comment %} {% for category, posts in post_data.items() %} {% endcomment %}
-      <h2>{{ category }}</h2>
-      <a href="{% url 'create_post_rec' %}">Recommendation</a>
-
+  
       {% for post in post_data.demandes %}
-      <a href="{% url 'myposte' post.token %}">mes poste</a>
-
-        <div class="post">
+      <a href="{% url 'create_post_rec' %}">Recommendation</a>
+      <div class="post">
           <div class="user-info" width="20">
             <img src="{{ post.userimage.url }}" alt="User profile image" height="30" width="30">
             <span>{{ post.username }} {{ post.prenom }}</span>
@@ -363,7 +358,6 @@
 
   <div class="post-container">
     {% comment %} {% for category, posts in post_data.items() %} {% endcomment %}
-      <h2>{{ category }}</h2>
   
       {% for post in post_data.offres %}
         <div class="post">

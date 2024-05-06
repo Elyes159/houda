@@ -91,9 +91,10 @@
                 if (xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
                     if (response.token) {
+                        localStorage.setItem('token', response.token);
                         console.log(response)
                         // Redirect to /dashboard/<token> if token is present
-                        window.location.href = '/creation_posts_view/' + response.token + '/';
+                        window.location.href = '/all_posts/'+response.token+'/';
                     } else {
                         alert("Une erreur s'est produite. Veuillez réessayer.");
                     }

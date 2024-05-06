@@ -20,7 +20,7 @@ from django.urls import path
 from Student_Help import settings
 from django.conf.urls.static import static
 
-from myapp.views import all_posts, create_account, create_account_view, create_post, creation_posts, creation_transport, dashbord_view, login_user, login_view
+from myapp.views import all_posts, create_account, create_account_view, create_post, creation_logement, creation_posts, creation_stage, creation_transport, dashbord_view, get_comments, like_post, login_user, login_view, my_posts, my_posts_view
 
 
 
@@ -30,10 +30,17 @@ urlpatterns = [
     path('create_account_view/',create_account_view,name = "create_account_view"),
     path('loginn/',login_user,name = "loginn"),
     path('login_view/',login_view),
-    path('create_post/<type_post>/',create_post),
+    path('create_post/<type_post>/<token>/',create_post),
     path('create_recommendation/',creation_posts,name="create_post_rec"),
     path('creation_transport/',creation_transport,name="creation_transport"),
-    path('all_posts/', all_posts, name='all_posts'),
+    path('creation_logement/',creation_logement,name = "creation_logement"),
+    path('creation_stage/',creation_stage,name = "creation_stage"),
+    path('all_posts/<token>/', all_posts, name='all_posts'),
+    path('my_posts/<token>/', all_posts, name='my_posts'),
+    path('like_post/<post_id>/<token>/', like_post, name='like_post'),
+    path('getComments/<post_id>/',get_comments),
+    path('get_my_posts_view/<token>/',my_posts,name="myposte")
+
 ]
 if settings.DEBUG:
     urlpatterns+= static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Créer un Recommendation</title>
+  <title>Créer une Recommendation</title>
   <style>
     body {
         font-family: Arial, sans-serif;
@@ -104,12 +104,32 @@
       </select>
 
       <div id="postDetails">
-        {% csrf_token %}
-        <label for="text">Texte:</label>
-        <input type="text" id="text" name="text" required><br>
+      
         
         <label for="image">Image:</label>
         <input type="file" id="image" name="image" accept="image/*">
+        
+        <!-- Champs spécifiques à la recommandation -->
+        <label for="societe">societe:</label>
+        <input type="text" id="societe" name="societe" required><br>
+        
+        <label for="duree">duree:</label>
+        <input type="text" id="duree" name="duree" required><br>
+        
+        <label for="sujet">sujet:</label>
+        <input type="text" id="sujet" name="sujet" required><br>
+        
+        <label for="spécialité"> spécialité:</label>
+        <input type="text" id="spécialité" name="spécialité" required><br>
+        
+        <label for="contactinfo">Informations de contact:</label>
+        <input type="text" id="contactinfo" name="contactinfo" required><br>
+        <select id="typeStg" name="typeStg">  
+            <option value="1" id = "stage">ouvrier</option>
+            <option value="2" id = "stage">technicien</option>
+            <option value="3" id = "stage">PFE</option>
+
+          </select>
       </div>
       <button type="submit">Créer Poste</button>
     </form>
@@ -118,38 +138,46 @@
   <script>
     document.getElementById("createPostForm").addEventListener("submit", function(event) {
         event.preventDefault();
-        var formData = new FormData(this);
-        var xhr = new XMLHttpRequest();
+        var formData = new FormData(this);       
         var token = localStorage.getItem('token');
-
-        xhr.open("POST", "/create_post/recommendation/"+token+"/", true); // Remplacez "/url_de_votre_vue/" par l'URL de votre vue Django
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/create_post/stage/"+token+"/", true);
         xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
-
         xhr.onload = function() {
-          if (xhr.status === 200) {
-            var response = JSON.parse(xhr.responseText);
-            alert(response.success);
-          } else {
-            alert("Une erreur est survenue. Veuillez réessayer.");
-          }
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                alert(response.success);
+            } else {
+                alert("Une erreur est survenue. Veuillez réessayer.");
+            }
         };
         xhr.send(formData);
-      });
-
-      function getCookie(name) {
+    });
+    
+    function formatDate(dateString) {
+        // Convertir la chaîne de caractères en objet Date
+        var date = new Date(dateString);
+    
+        // Formater la date en "YYYY-MM-DD HH:MM:SS"
+        var formattedDate = date.toISOString().slice(0, 19).replace("T", " ");
+    
+        return formattedDate;
+    }
+    
+    function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie !== "") {
-          var cookies = document.cookie.split(";");
-          for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + "=")) {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
+            var cookies = document.cookie.split(";");
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
-          }
         }
         return cookieValue;
-      }
+    }
   </script>
 </body>
 </html>

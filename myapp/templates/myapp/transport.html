@@ -140,16 +140,14 @@
         var heure_dep_value = heure_dep_input.value;
         var heure_dep_formatted = formatDate(heure_dep_value); // Fonction pour formater la date
     
-        // Convertir la valeur de "nbre_siéges" en nombre entier
         var nbre_sieges_input = document.getElementById("nbre_siéges");
         var nbre_sieges_value = parseInt(nbre_sieges_input.value);
-    
-        // Mettre à jour les valeurs dans le FormData
         formData.set("heure_dep", heure_dep_formatted);
         formData.set("nbre_siéges", nbre_sieges_value);
-    
+        var token = localStorage.getItem('token');
+
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/create_post/transport/", true);
+        xhr.open("POST", "/create_post/transport/"+token+"/", true);
         xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
         xhr.onload = function() {
             if (xhr.status === 200) {

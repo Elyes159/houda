@@ -48,6 +48,7 @@ class Poste (models.Model) :
     type = models.IntegerField(choices = TYPE_CHOICES)
     image = models.ImageField(upload_to='categories/')
     date = models.DateTimeField( auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     
 class Evenement(Poste):
     intitule = models.CharField(max_length=50)
@@ -98,6 +99,25 @@ class Recommendation(Poste):
 
 class Reaction(models.Model):
     post = models.ForeignKey(Poste, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Suppose que vous avez une classe User
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
     comment = models.CharField(max_length=100000)
     like = models.BooleanField()
+    
+    
+class Reaction(models.Model):
+    LIKE_CHOICES = (
+        (True, 'Like'),
+        (False, 'Dislike'),
+    )
+    post = models.ForeignKey(Poste, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reaction_type = models.BooleanField(choices=LIKE_CHOICES,default=False)
+
+    def __str__(self):
+        return f"{self.user.email} reacted {self.get_reaction_type_display()} to {self.post.id}"
+    
+class Commentaire(models.Model):
+    post = models.ForeignKey(Poste, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contenu = models.CharField(max_length=500, blank=True, null=True)
+    date_creation = models.DateTimeField(auto_now_add=True)

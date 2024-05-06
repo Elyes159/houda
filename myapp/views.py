@@ -1,6 +1,6 @@
 import json
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from flask import redirect
 from myapp.models import User
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -35,6 +35,14 @@ def creation_posts(request) :
 def creation_transport(request) : 
     return render(request,'myapp/transport.html')
 
+def creation_logement(request) : 
+    return render(request,'myapp/logement.html')
+
+def creation_stage(request) : 
+    return render(request,'myapp/stage.html')
+def my_posts_view(request,token) : 
+    return render(request,'myapp/mes_postes.html')
+
 
 
 @csrf_exempt
@@ -46,13 +54,12 @@ def create_account(request):
             data = request.data
 
             nom = data.get('nom')
-            prenom = data.get('nom')
+            prenom = data.get('prenom')
 
             email = data.get('email')
             phone = data.get('phone')
             password = data.get('password')
 
-            print(f"Received data - Email: {email}, Phone: {phone}, Password: {password}")
 
             if email and phone and password:
                 print(f"Trying to find Otp for phone: {phone}")
@@ -97,12 +104,9 @@ from rest_framework.permissions import AllowAny
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([AllowAny]) 
 def login_user(request):
-    print("mochkol")
-    if request.method =='POST' :
-        print("mochkol")         
+    if request.method =='POST'  :
         email = request.data.get('email')
         password = request.data.get('password')
-        print("mochkol")
         if email:
             user = User.objects.filter(email=email).first()
         
@@ -125,8 +129,10 @@ def login_user(request):
 @csrf_exempt 
 @api_view(['POST'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
-def create_post(request,  type_post):
-    if request.method == "POST":
+def create_post(request,  type_post , token):
+    token_obj = Token.objects.filter(token = token).first()
+    user_obj = token_obj.user
+    if request.method == "POST" and token_obj:
             if type_post == 'evenementclub':
                 type = request.data.get("type")
                 image_file = request.FILES.get("image") 
@@ -143,9 +149,16 @@ def create_post(request,  type_post):
                     lieu = lieu,
                     contactinfo=contactinfo,
                     club = club,
+                    user = user_obj
                     
                 )
                 stage.save()
+                reaction = Reaction.objects.create(
+                    post = stage,
+                    user = user_obj,
+                    
+                )
+                reaction.save()
             elif type_post == 'evenementsociale':
                 type = request.data.get("type")
                 image_file = request.FILES.get("image") 
@@ -163,9 +176,16 @@ def create_post(request,  type_post):
                     lieu = lieu,
                     contactinfo=contactinfo,
                     prix = prix,
+                    user = user_obj
                     
                 )
                 stage.save()
+                reaction = Reaction.objects.create(
+                    post = stage,
+                    user = user_obj,
+                    
+                )
+                reaction.save()
             elif type_post == 'stage':
                 type = request.data.get("type")
                 image_file = request.FILES.get("image") 
@@ -183,9 +203,16 @@ def create_post(request,  type_post):
                     sujet=sujet,
                     contactinfo=contactinfo,
                     spécialité=spécialité,
-                    typeStg=typeStg
+                    typeStg=typeStg,
+                    user = user_obj
                 )
                 stage.save()
+                reaction = Reaction.objects.create(
+                    post = stage,
+                    user = user_obj,
+                    
+                )
+                reaction.save()
                 
             elif type_post == 'logement':
                 type = request.data.get("type")
@@ -198,9 +225,16 @@ def create_post(request,  type_post):
                     image=image_file,
                     contactinfo=contactinfo,
                     description=description,
-                    localisation=localisation
+                    localisation=localisation,
+                    user = user_obj
                 )
                 stage.save()
+                reaction = Reaction.objects.create(
+                    post = stage,
+                    user = user_obj,
+                    
+                )
+                reaction.save()
             elif type_post == 'transport':
                 type = request.data.get("type")
                 image_file = request.FILES.get("image") 
@@ -216,9 +250,16 @@ def create_post(request,  type_post):
                     destination=destination,
                     heure_dep = heure_dep,
                     nbre_siéges = nbre_siéges,
-                    contactinfo=contactinfo
+                    contactinfo=contactinfo,
+                    user = user_obj
                 )
                 stage.save()
+                reaction = Reaction.objects.create(
+                    post = stage,
+                    user = user_obj,
+                    
+                )
+                reaction.save()
             elif type_post == 'recommendation':
                 type = request.data.get("type")
                 image_file = request.FILES.get("image") 
@@ -227,9 +268,16 @@ def create_post(request,  type_post):
                     type=type,
                     image=image_file,
                     text=text,
+                    user = user_obj
                    
                 )
                 stage.save()
+                reaction = Reaction.objects.create(
+                    post = stage,
+                    user = user_obj,
+                    
+                )
+                reaction.save()
             else:
                 return JsonResponse({'error': 'Type de poste non valide'})
             
@@ -284,34 +332,190 @@ def get_specific_post_data(post):
   else:
     return {}  
 
-def all_posts(request):
-  post_data = {
-      'offres': [],  
-      'demandes': [],  
-  }
+def all_posts(request, token):
+    token_obj = Token.objects.filter(token=token).first()
+    token = token
+    print("heeyeeeeeeeeeeeeeee",token)
+    post_data = {
+        'offres': [],  
+        'demandes': [],  
+    }
 
-  # Get all Poste objects (base class)
-  all_postes = Poste.objects.all()
+    all_postes = Poste.objects.all()
+    for post in all_postes:
+        reaction = Reaction.objects.filter(post__id=post.id).first()
+        commentaires = Commentaire.objects.filter(post__id=post.id)
+        commentaires_data = []
+        for commentaire in commentaires:
+            commentaires_data.append({
+                'user': commentaire.user,
+                'contenu': commentaire.contenu,
+            })
+        if post.type == Poste.TYPE_CHOICES[0][0]:  
+            post_data['offres'].append({
+                'id': post.id,
+                'image': post.image.url if post.image else None,
+                'date': post.date,
+                'userimage': post.user.image,
+                'username': post.user.nom,
+                'prenom': post.user.prenom,
+                'reaction': reaction.reaction_type,
+                'commentaires': commentaires_data,
+                'token' : token,
 
-  for post in all_postes:
-    if post.type == Poste.TYPE_CHOICES[0][0]:  
-      post_data['offres'].append({
-          'id': post.id,
-          'image': post.image.url if post.image else None,  
-          **get_specific_post_data(post),
-      })
-    elif post.type == Poste.TYPE_CHOICES[1][0]:  
-      post_data['demandes'].append({
-          'id': post.id,
-          'image': post.image.url if post.image else None,
-          'date': post.date,
-          **get_specific_post_data(post),
-      })
+                **get_specific_post_data(post),
+            })
+        elif post.type == Poste.TYPE_CHOICES[1][0]:  
+            post_data['demandes'].append({
+                'id': post.id,
+                'image': post.image.url if post.image else None,
+                'date': post.date,
+                'userimage': post.user.image,
+                'username': post.user.nom,
+                'prenom': post.user.prenom,
+                'reaction': reaction.reaction_type,
+                'commentaires': commentaires_data,
+                'token' : token,
 
-  context = {'post_data': post_data}
-  return render(request, 'myapp/posts.html', context)
+                **get_specific_post_data(post),
+            })
+    context = {'post_data': post_data}
+    return render(request, 'myapp/posts.html', context)
 
 
+def my_posts(request, token):
+    token_obj = Token.objects.filter(token=token).first()
+    user_obj = token_obj.user
+    post_data = {
+        'offres': [],  
+        'demandes': [],  
+    }
+
+    all_postes = Poste.objects.filter(user = user_obj)
+    for post in all_postes:
+        reaction = Reaction.objects.filter(post__id=post.id).first()
+        commentaires = Commentaire.objects.filter(post__id=post.id)
+        commentaires_data = []
+        for commentaire in commentaires:
+            commentaires_data.append({
+                'user': commentaire.user,
+                'contenu': commentaire.contenu,
+            })
+        if post.type == Poste.TYPE_CHOICES[0][0]:  
+            post_data['offres'].append({
+                'id': post.id,
+                'image': post.image.url if post.image else None,
+                'date': post.date,
+                'userimage': post.user.image,
+                'username': post.user.nom,
+                'prenom': post.user.prenom,
+                'reaction': reaction.reaction_type,
+                'commentaires': commentaires_data,
+                'token' : token_obj.token,
+                **get_specific_post_data(post),
+            })
+        elif post.type == Poste.TYPE_CHOICES[1][0]:  
+            post_data['demandes'].append({
+                'id': post.id,
+                'image': post.image.url if post.image else None,
+                'date': post.date,
+                'userimage': post.user.image,
+                'username': post.user.nom,
+                'prenom': post.user.prenom,
+                'reaction': reaction.reaction_type,
+                'commentaires': commentaires_data,
+                'token' : token_obj.token,
+                **get_specific_post_data(post),
+            })
+    context = {'post_data': post_data}
+    return render(request, 'myapp/mes_postes.html', context)
+
+
+@csrf_exempt 
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+def like_post(request, post_id,token):
+    if request.method =="POST":
+        # Récupérez le poste correspondant à l'ID fourni
+        try:
+            post = Poste.objects.get(pk=post_id)
+        except Poste.DoesNotExist:
+            return JsonResponse({'error': 'Post not found'}, status=404)
+        try:
+            token_obj = Token.objects.get(token=token)
+        except Token.DoesNotExist:
+            return JsonResponse({'error': 'Token not found'}, status=404)
+        
+        user_obj = token_obj.user
+        reaction, created = Reaction.objects.get_or_create(user=user_obj, post=post)
+        
+        # Inversez la réaction (like ou dislike) si elle existe déjà
+        reaction.reaction_type = not reaction.reaction_type
+        reaction.save()
+
+        return JsonResponse({'success': reaction.reaction_type})
+    else:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
+    
+@csrf_exempt
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+def create_comment(request,post_id,token):
+    if request.method == 'POST':
+        # Récupérer les données du commentaire depuis la requête POST
+        try:
+            post = Poste.objects.get(pk=post_id)
+        except Poste.DoesNotExist:
+            return JsonResponse({'error': 'Post not found'}, status=404)
+        try:
+            token_obj = Token.objects.filter(token=token).first()
+        except Token.DoesNotExist:
+            return JsonResponse({'error': 'Token not found'}, status=404)
+        
+        user_obj = token_obj.user
+        
+        contenu = request.POST.get('contenu')
+        
+        # Vérifier si toutes les données requises sont présentes
+        if  contenu:
+            # Créer le commentaire dans la base de données
+            commentaire = Commentaire.objects.create(
+                post=post,
+                user = user_obj,
+                contenu=contenu
+            )
+            # Retourner une réponse JSON pour indiquer que le commentaire a été créé avec succès
+            return JsonResponse({'success': True, 'comment_id': commentaire.id})
+        else:
+            # Retourner une réponse JSON avec un message d'erreur si des données requises sont manquantes
+            return JsonResponse({'error': 'Missing required data'}, status=400)
+    else:
+        # Retourner une réponse JSON avec un message d'erreur si la méthode de requête n'est pas autorisée
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+@csrf_exempt
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])  
+def get_comments(request, post_id):
+    if request.method == 'GET':
+        # Récupérer tous les commentaires associés au poste donné
+        comments = Commentaire.objects.filter(post__id=post_id)
+        
+        # Construire une liste de dictionnaires contenant les détails de chaque commentaire
+        comments_list = []
+        for comment in comments:
+            comment_data = {
+                'id': comment.id,
+                'user': comment.user.email,
+                'contenu': comment.contenu,
+            }
+            comments_list.append(comment_data)
+        
+        # Retourner une réponse JSON avec la liste des commentaires
+        return JsonResponse({'comments': comments_list})
+    else:
+        # Retourner une réponse JSON avec un message d'erreur si la méthode de requête n'est pas autorisée
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
         
 
 
