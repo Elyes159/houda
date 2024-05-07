@@ -516,6 +516,20 @@ def get_comments(request, post_id):
     else:
         # Retourner une réponse JSON avec un message d'erreur si la méthode de requête n'est pas autorisée
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-        
+    
 
+@csrf_exempt
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication, BasicAuthentication]) 
+def create_comment(request,post_id,token) :
+    token_obj = Token.objects.filter(token = token).first()
+    post = Poste.objects.filter(id = post_id).first()
+    user_obj = token_obj.user
+    if request.method =="POST" : 
+        comment = request.data.get("comment")
+        comment_create = Commentaire.objects.create(post = post , user = user_obj, contenu = comment)
+        comment_create.save
+        return JsonResponse({"message":"bien"})
+    else : 
+        return JsonResponse({"erreur":"no"})
 
