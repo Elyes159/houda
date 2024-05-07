@@ -71,6 +71,8 @@
 
         <label for="password">Mot de passe:</label><br>
         <input type="password" id="password" name="password" required><br>
+        <label for="image">Image:</label>
+        <input type="file" id="image" name="image" accept="image/*">
 
         <button type="submit">Créer un compte</button>
     </form>
@@ -79,9 +81,9 @@
         document.getElementById("createAccountForm").addEventListener("submit", function(event) {
             event.preventDefault();
             var formData = new FormData(this);
+        
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "http://127.0.0.1:8000/create_account/");
-            xhr.setRequestHeader("Content-Type", "application/json");
             xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
             xhr.onload = function() {
                 if (xhr.status === 200) {
@@ -91,13 +93,8 @@
                     alert("Une erreur s'est produite lors de la création du compte.");
                 }
             };
-            var data = {};
-            formData.forEach(function(value, key){
-                data[key] = value;
-            });
-            xhr.send(JSON.stringify(data));
+            xhr.send(formData);
         });
-
         function getCookie(name) {
             var cookieValue = null;
             if (document.cookie && document.cookie !== "") {

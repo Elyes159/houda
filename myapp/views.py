@@ -59,12 +59,13 @@ def create_account(request):
             email = data.get('email')
             phone = data.get('phone')
             password = data.get('password')
-
-
+            print(password)
+            image = request.FILES['image']
+            
             if email and phone and password:
                 print(f"Trying to find Otp for phone: {phone}")
                
-                User.objects.create(nom=nom, prenom=prenom, email=email, phone=phone, password=password)
+                User.objects.create(nom=nom, prenom=prenom, email=email, phone=phone, password=password,image = image)
                 # otp_obj.delete()
                 return HttpResponse("account created successfully")
             else:
@@ -87,7 +88,7 @@ def create_account(request):
             return HttpResponse("Invalid JSON format in the request body", status=400)
 
         except Exception as e:
-            print(f"Error: {str(e)}")
+            print(f"Erroor: {str(e)}")
             return HttpResponse("An error occurred while processing the request", status=500)
 
     return HttpResponse("Invalid request method", status=405)
