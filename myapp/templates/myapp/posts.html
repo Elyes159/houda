@@ -265,6 +265,7 @@
           </div>
           <button onclick="showComments('{{ post.id }}')" class = "comment-button" >Voir les commentaires</button>
           <div id="comment-section">
+            
             <input type="text" id="comment-text" placeholder="Votre commentaire">
             <button onclick="addComment('{{ post.id }}')">Ajouter un commentaire</button>
         </div>  
@@ -278,6 +279,7 @@
                 <img src="../../static/images/dislike.png" alt="Dislike" height="30" width="30">
               </a>
             {% endif %}
+            {{ post.reactions_count }}
             <div id="comments-{{ post.id }}" style="display: none;">
               {% for commentaire in post.commentaires %}
               <div class="comment">
@@ -334,12 +336,13 @@
     function addComment(postId) {
       var commentText = document.getElementById("comment-text").value;
       var token = localStorage.getItem('token');
-  
+    
       // Envoie de la requête AJAX
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "/addComment/" + postId + "/" + token + "/");
       xhr.setRequestHeader("Content-Type", "application/json");
-  
+      xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); // Inclure le jeton CSRF
+    
       xhr.onload = function () {
           if (xhr.status === 200) {
               // Le commentaire a été ajouté avec succès
@@ -350,9 +353,9 @@
               console.error("Erreur lors de l'ajout du commentaire : " + xhr.responseText);
           }
       };
-  
+    
       xhr.send(JSON.stringify({ "comment": commentText }));
-  }
+    }
   
     function showComments(postId) {
       var commentsSection = document.getElementById('comments-' + postId);
@@ -384,13 +387,17 @@
 </div>
 
 <div style="padding: 20px;">
+
   {% if post_data %}
 
   <div class="post-container">
     {% comment %} {% for category, posts in post_data.items() %} {% endcomment %}
       <h2>{{ category }}</h2>
-  
+      <a href="{% url 'create_post_rec' %}">Recommendation</a>
+
       {% for post in post_data.offres %}
+      <a href="{% url 'myposte' post.token %}">mes poste</a>
+
         <div class="post">
           <div class="user-info" width="20">
             <img src="{{ post.userimage.url }}" alt="User profile image" height="30" width="30">
@@ -413,7 +420,11 @@
             </div>
           </div>
           <button onclick="showComments('{{ post.id }}')" class = "comment-button" >Voir les commentaires</button>
-  
+          <div id="comment-section">
+            
+            <input type="text" id="comment" placeholder="Votre commentaire">
+            <button onclick="addComment('{{ post.id }}')">Ajouter un commentaire</button>
+        </div>  
           <div class="post-actions" id="post-actions-{{ post.id }}">
             {% if post.reaction == True %}
               <a href="#" onclick="likePost('{{ post.id }}', true)" data-post-id="{{ post.id }}">
@@ -424,6 +435,7 @@
                 <img src="../../static/images/dislike.png" alt="Dislike" height="30" width="30">
               </a>
             {% endif %}
+            {{ post.reactions_count }}
             <div id="comments-{{ post.id }}" style="display: none;">
               {% for commentaire in post.commentaires %}
               <div class="comment">
@@ -462,11 +474,11 @@
             var postActions = document.getElementById('post-actions-' + postId);
             var imgElement = postActions.querySelector('img');
             if (like === true) {
-              imgElement.src = '../../static/images/dislike.png';
-              imgElement.alt = 'dislike';
-            } else  {
               imgElement.src = '../../static/images/like.png';
-              imgElement.alt = 'like';
+              imgElement.alt = 'Like';
+            } else if (like === false) {
+              imgElement.src = '../../static/images/dislike.png';
+              imgElement.alt = 'Dislike';
             }
             console.log('Like/dislike successful');
           } else {
@@ -477,7 +489,29 @@
           console.error('Error:', error);
         });
     }
-  
+    function addComment(postId) {
+      var commentText = document.getElementById("comment").value;
+      var token = localStorage.getItem('token');
+    
+      // Envoie de la requête AJAX
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/addComment/" + postId + "/" + token + "/");
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); // Inclure le jeton CSRF
+    
+      xhr.onload = function () {
+          if (xhr.status === 200) {
+              // Le commentaire a été ajouté avec succès
+              console.log("Le commentaire a été ajouté avec succès !");
+              // Vous pouvez effectuer d'autres actions ici, comme rafraîchir la liste des commentaires
+          } else {
+              // Il y a eu une erreur lors de l'ajout du commentaire
+              console.error("Erreur lors de l'ajout du commentaire : " + xhr.responseText);
+          }
+      };
+    
+      xhr.send(JSON.stringify({ "comment": commentText }));
+    }
     function showComments(postId) {
       var commentsSection = document.getElementById('comments-' + postId);
       if (commentsSection.style.display === 'none') {

@@ -97,11 +97,7 @@ class Recommendation(Poste):
     
    
 
-class Reaction(models.Model):
-    post = models.ForeignKey(Poste, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  
-    comment = models.CharField(max_length=100000)
-    like = models.BooleanField()
+
     
     
 class Reaction(models.Model):

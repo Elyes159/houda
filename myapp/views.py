@@ -344,7 +344,8 @@ def all_posts(request, token):
 
     all_postes = Poste.objects.all()
     for post in all_postes:
-        reaction = Reaction.objects.filter(post__id=post.id).first()
+        reactions_count = Reaction.objects.filter(post__id=post.id,reaction_type = True).count()  # Nombre de réactions
+        reaction = Reaction.objects.filter(post__id=post.id,).first()
         commentaires = Commentaire.objects.filter(post__id=post.id)
         commentaires_data = []
         for commentaire in commentaires:
@@ -363,6 +364,7 @@ def all_posts(request, token):
                 'reaction': reaction.reaction_type,
                 'commentaires': commentaires_data,
                 'token' : token,
+                'reactions_count': reactions_count, 
 
                 **get_specific_post_data(post),
             })
@@ -377,6 +379,7 @@ def all_posts(request, token):
                 'reaction': reaction.reaction_type,
                 'commentaires': commentaires_data,
                 'token' : token,
+                'reactions_count': reactions_count, 
 
                 **get_specific_post_data(post),
             })
@@ -528,9 +531,12 @@ def create_comment(request,post_id,token) :
     user_obj = token_obj.user
     if request.method =="POST" : 
         comment = request.data.get("comment")
-        comment_create = Commentaire.objects.create(post = post , user = user_obj, contenu = comment)
-        comment_create.save
-        return JsonResponse({"message":"bien"})
+        if comment :
+            comment_create = Commentaire.objects.create(post = post , user = user_obj, contenu = comment)
+            comment_create.save
+            return JsonResponse({"message":"bien"})
+        else : 
+            return JsonResponse({"erreur":"no"},status = 500)
     else : 
-        return JsonResponse({"erreur":"no"})
+        return JsonResponse({"erreur":"no"},status = 400)
 
