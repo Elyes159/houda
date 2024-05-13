@@ -241,6 +241,8 @@
           <div class="user-info" width="20">
             <img src="{{ post.userimage.url }}" alt="User profile image" height="30" width="30">
             <span>{{ post.username }} {{ post.prenom }}</span>
+            <button onclick="deletePost('{{ post.id }}')">Supprimer</button>
+
             {% comment %} <span>{{ post.userimage }}</span> {% endcomment %}
           </div>
           <div class="post-content">
@@ -299,6 +301,8 @@
           'X-CSRFToken': getCookie('csrftoken')
         }
       };
+      
+    
   
       fetch('/like_post/' + postId + '/' + token + '/', requestOptions)
         .then(response => response.json())
@@ -323,6 +327,32 @@
           console.error('Error:', error);
         });
     }
+    function deletePost(postId) {
+      var token = localStorage.getItem('token');
+      var requestOptions = {
+          method: 'DELETE',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+          }
+      };
+  
+      fetch('/delete_post/' + postId + '/' + token + '/', requestOptions)
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  // Supprimer le poste de l'affichage
+                  var postElement = document.getElementById('post-' + postId);
+                  postElement.remove();
+                  console.log('Post deleted successfully');
+              } else {
+                  console.error('Error deleting post');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+          });
+  }
   
     function showComments(postId) {
       var commentsSection = document.getElementById('comments-' + postId);
@@ -364,6 +394,8 @@
           <div class="user-info" width="20">
             <img src="{{ post.userimage.url }}" alt="User profile image" height="30" width="30">
             <span>{{ post.username }} {{ post.prenom }}</span>
+            <button onclick="deletePost('{{ post.id }}')">Supprimer</button>
+
             {% comment %} <span>{{ post.userimage }}</span> {% endcomment %}
           </div>
           <div class="post-content">
@@ -422,6 +454,8 @@
           'X-CSRFToken': getCookie('csrftoken')
         }
       };
+      
+    
   
       fetch('/like_post/' + postId + '/' + token + '/', requestOptions)
         .then(response => response.json())
@@ -446,6 +480,33 @@
           console.error('Error:', error);
         });
     }
+    function deletePost(postId) {
+      var token = localStorage.getItem('token');
+      var requestOptions = {
+          method: 'DELETE',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+              
+          }
+      };
+  
+      fetch('/delete_post/' + postId + '/' + token + '/', requestOptions)
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  // Supprimer le poste de l'affichage
+                  var postElement = document.getElementById('post-' + postId);
+                  postElement.remove();
+                  console.log('Post deleted successfully');
+              } else {
+                  console.error('Error deleting post');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+          });
+  }
   
     function showComments(postId) {
       var commentsSection = document.getElementById('comments-' + postId);

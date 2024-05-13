@@ -539,4 +539,23 @@ def create_comment(request,post_id,token) :
             return JsonResponse({"erreur":"no"},status = 500)
     else : 
         return JsonResponse({"erreur":"no"},status = 400)
+    
+from django.http import JsonResponse
+@csrf_exempt
+@api_view(['DELETE'])
+def delete_post(request, post_id, token):
+    # Vérifiez le jeton pour l'authentification, la permission, etc.
+    token_obj = Token.objects.filter(token=token).first()
+    user_obj = token_obj.user
+    
+    # Récupérez le poste à supprimer
+    post_to_delete = Poste.objects.get(id=post_id)
+    
+    # Assurez-vous que l'utilisateur actuel est l'auteur du poste
+    if post_to_delete.user == user_obj:
+        post_to_delete.delete()
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'success': False})
+
 

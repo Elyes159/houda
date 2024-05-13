@@ -20,7 +20,7 @@ from django.urls import path
 from Student_Help import settings
 from django.conf.urls.static import static
 
-from myapp.views import all_posts, create_account, create_account_view, create_comment, create_post, creation_logement, creation_posts, creation_stage, creation_transport, dashbord_view, get_comments, like_post, login_user, login_view, my_posts, my_posts_view
+from myapp.views import *
 
 
 
@@ -41,7 +41,7 @@ urlpatterns = [
     path('getComments/<post_id>/',get_comments),
     path('get_my_posts_view/<token>/',my_posts,name="myposte"),
     path('addComment/<post_id>/<token>/',create_comment),
-
+    path('delete_post/<post_id>/<token>/',delete_post),
 ]
 if settings.DEBUG:
     urlpatterns+= static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
