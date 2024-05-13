@@ -42,6 +42,8 @@ def creation_stage(request) :
     return render(request,'myapp/stage.html')
 def my_posts_view(request,token) : 
     return render(request,'myapp/mes_postes.html')
+def profile_veiw(request,token) : 
+    return render(request,'myapp/user_details.html')
 
 
 
@@ -557,5 +559,35 @@ def delete_post(request, post_id, token):
         return JsonResponse({'success': True})
     else:
         return JsonResponse({'success': False})
+    
+    
 
 
+from django.http import JsonResponse
+
+@csrf_exempt
+def user_details(request, token):
+    if request.method == 'GET':
+        token_obj = Token.objects.filter(token=token).first()
+        if token_obj:
+            user_email = token_obj.user.email
+            if user_email:
+                user = User.get_user_by_email(user_email)
+                if user:
+                    user_data = {
+                        'nom': user.nom,
+                        'prenom': user.prenom,
+                        'email': user.email,
+                        'phone': user.phone,
+                        'created_at': user.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                        'image_url': user.image.url if user.image else None,
+                    }
+                    return JsonResponse({'success': True, 'user': user_data})
+                else:
+                    return JsonResponse({'success': False, 'message': 'Utilisateur non trouvé'})
+            else:
+                return JsonResponse({'success': False, 'message': 'Email non fourni'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Token invalide'})
+    else:
+        return JsonResponse({'success': False, 'message': 'Méthode non autorisée'})

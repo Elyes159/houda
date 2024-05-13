@@ -18,6 +18,12 @@ class User( models.Model) :
     def update_password(self, new_password):
         hashed_password = make_password(new_password)
         User.objects.filter(pk=self.pk).update(password=hashed_password)
+    @staticmethod
+    def get_user_by_email(email):
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            return None
         
         
 class Token(models.Model) : 

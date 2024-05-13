@@ -42,6 +42,8 @@ urlpatterns = [
     path('get_my_posts_view/<token>/',my_posts,name="myposte"),
     path('addComment/<post_id>/<token>/',create_comment),
     path('delete_post/<post_id>/<token>/',delete_post),
+    path('userDetails/<token>/',user_details,name="user_profile"),
+    path('profileview/<token>/',profile_veiw,name="profile_view"),
 ]
 if settings.DEBUG:
     urlpatterns+= static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
